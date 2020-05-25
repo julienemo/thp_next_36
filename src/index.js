@@ -1,14 +1,18 @@
 import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from "react-redux";
+import FoodStore from "./Redux/BuyEatFood/Store";
 
-import EatBuyFood from "./Components/EatBuyFood"
+import EatBuyFood from "./Components/EatBuyFood/EatBuyFood"
+import News from "./Components/News"
 
 const App = () => {
   return (
-    <div>
-      <EatBuyFood/>
-    </div>
+    <Provider store={FoodStore}>
+      <EatBuyFood />
+      <News />
+    </Provider>
   );
 }
 
