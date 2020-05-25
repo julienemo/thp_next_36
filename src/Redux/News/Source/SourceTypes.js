@@ -1,0 +1,2 @@
+export const UPDATE_SOURCE = "UPDATE_SOURCE";
+export const CLEAR_SOURCE = "CLEAR_SOURCE";
