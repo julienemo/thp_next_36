@@ -1,89 +1,82 @@
 import React from 'react';
 
-import { createStore } from 'redux';
+import { createStore, combineReducers } from 'redux';
 
 const EatBuyFood = () => {
   const maxQt = 10;
   const minQt = 0;
-  const initialQt = 0;
-
-  const noodleCounter = (noodleState = initialQt, action) => {
-    let result;
-    switch (action.type) {
-      case 'BUY':
-        result = noodleState + Number(action.value);
-        break
-      case 'EAT':
-        result = noodleState - Number(action.value);
-        break
-      default: result = noodleState;
-    }
-    if (result > maxQt) {
-      result = maxQt;
-      console.warn('storage limit reached, cannot buy noodle')
-
-    }
-    if (result < minQt) {
-      result = minQt
-      console.warn('no more noodle, can not eat')
-
-    }
-    return result;
+  const initialStock = {
+    noodle: 2,
+    rice: 4,
   }
 
-  const riceCounter = (riceCounter = initialQt, action) => {
-    let result;
+  const noodleCounter = (state = initialStock.noodle, action) => {
     switch (action.type) {
-      case 'BUY':
-        result = riceCounter + Number(action.value)
-        break
-      case 'EAT':
-        result = riceCounter - Number(action.value)
-        break
-      default: result = riceCounter
+      case 'BUY_NOODLE':
+        return Math.min(state + Number(action.value), maxQt)
+      case 'EAT_NOODLE':
+        return Math.max(state - Number(action.value),minQt)
+      default: return state
     }
-    if (result > maxQt) {
-      result = maxQt;
-      console.warn('storage limit reached, cannot buy rice')
-    }
-    if (result < minQt) {
-      result = minQt
-      console.warn('no more rice, can not eat')
-
-    }
-    return result;
   }
 
-  let noodleStore = createStore(noodleCounter);
-  let riceStore = createStore(riceCounter);
+  const riceCounter = (state = initialStock.rice, action) => {
+    switch (action.type) {
+      case 'BUY_RICE':
+        return Math.min(state + Number(action.value), maxQt)
+      case 'EAT_RICE':
+        return Math.max(state - Number(action.value), minQt)
+      default: return state
+    }
+  }
 
-  const buy = (value, index) => {
+  const rootReducer = combineReducers({
+    noodle: noodleCounter,
+    rice: riceCounter,
+  })
+
+  let store = createStore(
+    rootReducer,
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  )
+
+  const buyNoodle = (type, value) => {
     return {
-      type: 'BUY',
+      type: 'BUY_NOODLE',
       value: Math.floor(Math.random() * 2) +1 ,
-      index
     }
   }
 
-  const eat = (value, index) => {
+  const eatNoodle = (type, value) => {
     return {
-      type: 'EAT',
-      value: Math.floor(Math.random() * 2) +1,
-      index
+      type: 'EAT_NOODLE',
+      value: Math.floor(Math.random() * 2) + 1,
     }
   }
 
+  const buyRice = (type, value) => {
+    return {
+      type: 'BUY_RICE',
+      value: Math.floor(Math.random() * 2) + 1,
+    }
+  }
 
-  noodleStore.subscribe(() => console.log('noodle ' + noodleStore.getState()));
-  riceStore.subscribe(() => console.log('rice ' + riceStore.getState()))
+  const eatRice = (type, value) => {
+    return {
+      type: 'EAT_RICE',
+      value: Math.floor(Math.random() * 2) + 1,
+    }
+  }
 
+  store.subscribe(() => console.log(JSON.stringify(store.getState())));
 
   return (
     <div>
-      <button type="button" onClick={() => { noodleStore.dispatch(buy()) }}>buy noodle</button>
-      <button type="button" onClick={() => { noodleStore.dispatch(eat()) }}>eat noodle</button>
-      <button type="button" onClick={() => { riceStore.dispatch(buy()) }}>buy rice</button>
-      <button type="button" onClick={() => { riceStore.dispatch(eat()) }}>eat rice</button>
+      <p>Project 1: Buyting and Eating stuff</p>
+      <button type="button" onClick={() => { store.dispatch(buyNoodle()) }}>buy noodle</button>
+      <button type="button" onClick={() => { store.dispatch(eatNoodle()) }}>eat noodle</button>
+      <button type="button" onClick={() => { store.dispatch(buyRice()) }}>buy rice</button>
+      <button type="button" onClick={() => { store.dispatch(eatRice()) }}>eat rice</button>
     </div>);
 }
 
